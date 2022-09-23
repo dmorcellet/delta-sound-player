@@ -10,6 +10,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.io.File;
 
+import javax.swing.JFileChooser;
 import javax.swing.JSlider;
 import javax.swing.JToolTip;
 import javax.swing.Popup;
@@ -36,6 +37,7 @@ public class ControlPanel extends javax.swing.JPanel {
     private Popup popup;
     private JToolTip toolTip;
     private PopupFactory popupFactory = PopupFactory.getSharedInstance();
+    private JFileChooser chooser;
 
     private boolean isSeeking = false;
     private boolean progressEnabled = false;
@@ -103,8 +105,6 @@ public class ControlPanel extends javax.swing.JPanel {
     }
 
     private void updateStatus() {
-        if (player.getTrack() == null)
-            System.out.println("wtf");
         String text=UiUtils.playingTime(player, player.getTrack());
         statusLabel.setText(text);
     }
@@ -201,13 +201,22 @@ public class ControlPanel extends javax.swing.JPanel {
     }
 
     private void choose() {
-      String name= "sample2.ogg";
-      //String name= "sample3.wav";
-      File file = new File("C:\\dam\\dev\\perso\\git\\"+name);
+      chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+      chooser.setCurrentDirectory(new File("C:\\dam\\dev\\perso\\git"));
+      int ok=chooser.showDialog(null,"Choose");
+      File file=null;
+      if (ok==JFileChooser.APPROVE_OPTION)
+      {
+        file=chooser.getSelectedFile();
+      }
+      if (file==null)
+      {
+        return;
+      }
       Track track = null;
-      AudioFileIdentifier reader = Identifiers.getIdentifier(file.getName());
-      if (reader != null) {
-          track = reader.identify(file);
+      AudioFileIdentifier identifier = Identifiers.getIdentifier(file.getName());
+      if (identifier != null) {
+          track = identifier.identify(file);
           player.open(track);
       }
     }
@@ -294,6 +303,7 @@ public class ControlPanel extends javax.swing.JPanel {
         chooseButton.setMargin(new java.awt.Insets(2, 3, 2, 3));
         chooseButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(chooseButton);
+        chooser=new JFileChooser();
 
         stopButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("stop.png"))); // NOI18N
         stopButton.setFocusable(false);
