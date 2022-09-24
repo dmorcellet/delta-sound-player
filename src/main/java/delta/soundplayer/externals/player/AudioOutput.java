@@ -11,121 +11,167 @@ import javax.sound.sampled.SourceDataLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Facade for udio output.
+ * @author DAM
+ */
 public class AudioOutput
 {
   private static final Logger logger=LoggerFactory.getLogger(AudioOutput.class);
 
   public static final int BUFFER_SIZE=(int)(Math.pow(2,15)/24)*24;
 
-  private SourceDataLine line;
-  private FloatControl volumeControl;
-  private boolean mixerChanged;
-  private Mixer mixer;
-  private float _volume=1f;
-  private boolean linearVolume=false;
+  private SourceDataLine _line;
+  private FloatControl _volumeControl;
+  private Mixer _mixer;
+  private float _volume;
+  private boolean _linearVolume;
 
+  /**
+   * Constructor.
+   */
   public AudioOutput() {
-    
+    _volume=1f;
+    _linearVolume=false;
   }
 
-  public void init(AudioFormat fmt) throws LineUnavailableException
+  /**
+   * Initialized output for the given audio format.
+   * @param audioFormat
+   * @throws LineUnavailableException
+   */
+  public void init(AudioFormat audioFormat) throws LineUnavailableException
   {
-    // if it is same format and the line is opened, do nothing
-    if (line!=null&&line.isOpen())
+    // If it is same format and the line is opened, do nothing
+    if (_line!=null&&_line.isOpen())
     {
-      if (mixerChanged||!line.getFormat().matches(fmt))
+      if (!_line.getFormat().matches(audioFormat))
       {
-        mixerChanged=false;
-        line.drain();
-        line.close();
-        line=null;
+        _line.drain();
+        _line.close();
+        _line=null;
       }
       else
       {
         return;
       }
     }
-    logger.debug("Audio format: {}", fmt);
-    DataLine.Info info=new DataLine.Info(SourceDataLine.class,fmt,BUFFER_SIZE);
+    logger.debug("Audio format: {}", audioFormat);
+    DataLine.Info info=new DataLine.Info(SourceDataLine.class,audioFormat,BUFFER_SIZE);
     logger.debug("Dataline info: {}", info);
-    if (mixer!=null&&mixer.isLineSupported(info))
+    if (_mixer!=null&&_mixer.isLineSupported(info))
     {
-      line=(SourceDataLine)mixer.getLine(info);
-      logger.debug("Mixer: {}"+mixer.getMixerInfo().getDescription());
+      _line=(SourceDataLine)_mixer.getLine(info);
+      logger.debug("Mixer: {}", _mixer.getMixerInfo().getDescription());
     }
     else
     {
-      line=AudioSystem.getSourceDataLine(fmt);
-      mixer=null;
+      _line=AudioSystem.getSourceDataLine(audioFormat);
+      _mixer=null;
     }
-    logger.debug("Line: {}", line);
-    line.open(fmt,BUFFER_SIZE);
-    line.start();
-    if (line.isControlSupported(FloatControl.Type.VOLUME))
+    logger.debug("Line: {}", _line);
+    _line.open(audioFormat,BUFFER_SIZE);
+    _line.start();
+    if (_line.isControlSupported(FloatControl.Type.VOLUME))
     {
-      volumeControl=(FloatControl)line.getControl(FloatControl.Type.VOLUME);
-      volumeControl.setValue(_volume*volumeControl.getMaximum());
-      linearVolume=true;
+      _volumeControl=(FloatControl)_line.getControl(FloatControl.Type.VOLUME);
+      _volumeControl.setValue(_volume*_volumeControl.getMaximum());
+      _linearVolume=true;
     }
-    else if (line.isControlSupported(FloatControl.Type.MASTER_GAIN))
+    else if (_line.isControlSupported(FloatControl.Type.MASTER_GAIN))
     {
-      volumeControl=(FloatControl)line.getControl(FloatControl.Type.MASTER_GAIN);
-      volumeControl.setValue(linearToDb(_volume));
-      linearVolume=false;
+      _volumeControl=(FloatControl)_line.getControl(FloatControl.Type.MASTER_GAIN);
+      _volumeControl.setValue(linearToDb(_volume));
+      _linearVolume=false;
     }
   }
 
+  /**
+   * Stop.
+   */
   public void stop()
   {
-    if (line!=null&&line.isOpen()) line.stop();
+    if (_line!=null&&_line.isOpen())
+     {
+      _line.stop();
+     }
   }
 
+  /**
+   * Start.
+   */
   public void start()
   {
-    if (line!=null&&line.isOpen()) line.start();
+    if (_line!=null&&_line.isOpen())
+    {
+      _line.start();
+    }
   }
 
+  /**
+   * Close.
+   */
   public void close()
   {
-    if (line!=null)
+    if (_line!=null)
     {
-      line.close();
+      _line.close();
     }
   }
 
+  /**
+   * Indicates if the managed line is opened or not.
+   * @return <code>true</code> if it is, <code>false</code> otherwise.
+   */
   public boolean isOpen()
   {
-    return line!=null&&line.isOpen();
+    return ((_line!=null) && (_line.isOpen()));
   }
 
+  /**
+   * Flush.
+   */
   public void flush()
   {
-    if (line!=null&&line.isOpen()) line.flush();
-  }
-
-  public void write(byte[] buf, int offset, int len)
-  {
-    line.write(buf,offset,len);
-  }
-
-  public void setVolume(float volume)
-  {
-    this._volume=volume;
-    if (volumeControl!=null)
+    if (_line!=null&&_line.isOpen())
     {
-      if (linearVolume)
-        volumeControl.setValue(volumeControl.getMaximum()*volume);
-      else
-        volumeControl.setValue(linearToDb(volume));
+      _line.flush();
     }
   }
 
-  public float getVolume(boolean actual)
+  /**
+   * Write some audio data.
+   * @param buffer Buffer to write.
+   * @param offset Offset of the data to write in this buffer.
+   * @param length Length of the data to write.
+   */
+  public void write(byte[] buffer, int offset, int length)
   {
-    if (actual&&volumeControl!=null)
+    _line.write(buffer,offset,length);
+  }
+
+  /**
+   * Set the volume.
+   * @param volume Volume to set.
+   */
+  public void setVolume(float volume)
+  {
+    _volume=volume;
+    if (_volumeControl!=null)
     {
-      if (linearVolume) return this.volumeControl.getValue()/volumeControl.getMaximum();
-      return dbToLinear(volumeControl.getValue());
+      if (_linearVolume)
+        _volumeControl.setValue(_volumeControl.getMaximum()*volume);
+      else
+        _volumeControl.setValue(linearToDb(volume));
+    }
+  }
+
+  public float getVolume()
+  {
+    if (_volumeControl!=null)
+    {
+      if (_linearVolume) return this._volumeControl.getValue()/_volumeControl.getMaximum();
+      return dbToLinear(_volumeControl.getValue());
     }
     return _volume;
   }

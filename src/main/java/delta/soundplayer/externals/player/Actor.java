@@ -56,19 +56,17 @@ public abstract class Actor
       return _params;
     }
 
+    /**
+     * Set the message parameters.
+     * @param params Parameters to set.
+     */
     public void setParams(Object[] params)
     {
-      this._params=params;
+      _params=params;
     }
   }
 
   private BlockingQueue<Message> queue=new LinkedBlockingDeque<Message>();
-
-  public synchronized void send(Message message, Object... params)
-  {
-    message.setParams(params);
-    queue.add(message);
-  }
 
   protected Actor()
   {
@@ -98,6 +96,17 @@ public abstract class Actor
       }
     },"Actor Thread");
     messageThread.start();
+  }
+
+  /**
+   * Send a message with parameters.
+   * @param message Message to send.
+   * @param params Associated parameters.
+   */
+  public synchronized void send(Message message, Object... params)
+  {
+    message.setParams(params);
+    queue.add(message);
   }
 
   protected abstract void process(Message message);
