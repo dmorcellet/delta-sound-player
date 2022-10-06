@@ -5,15 +5,15 @@ import java.io.File;
 import delta.soundplayer.externals.data.Track;
 
 /**
- * Audio file identifier.
- * <br>
+ * Audio file identifier. <br>
  * Reads an audio file to load track data:
  * <ul>
  * <li>channels count,
  * <li>sample rate,
  * <li>total samples count,
  * <li>optionally: bit rate (if constant).
- * </ul>>
+ * </ul>
+ * >
  * @author DAM
  */
 public abstract class AudioFileIdentifier

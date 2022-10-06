@@ -85,7 +85,7 @@ public abstract class Actor
           }
           catch (InterruptedException e)
           {
-            logger.warn("Interrupted exception!", e);
+            logger.warn("Interrupted exception!",e);
             break;
           }
           catch (Exception e)

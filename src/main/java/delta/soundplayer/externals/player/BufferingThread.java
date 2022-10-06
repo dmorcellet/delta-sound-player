@@ -99,7 +99,7 @@ public class BufferingThread extends Actor implements Runnable
         }
         catch (Exception e)
         {
-          logger.warn("Exception in BufferingThread.run()", e);
+          logger.warn("Exception in BufferingThread.run()",e);
         }
       }
     }
@@ -150,7 +150,7 @@ public class BufferingThread extends Actor implements Runnable
 
     if (track!=null)
     {
-      logger.debug("Opening track {}", track.getFile());
+      logger.debug("Opening track {}",track.getFile());
 
       if (!track.getFile().exists())
       {

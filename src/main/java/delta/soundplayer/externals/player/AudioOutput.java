@@ -33,7 +33,8 @@ public class AudioOutput
   /**
    * Constructor.
    */
-  public AudioOutput() {
+  public AudioOutput()
+  {
     _volume=1f;
     _linearVolume=false;
   }
@@ -59,20 +60,20 @@ public class AudioOutput
         return;
       }
     }
-    logger.debug("Audio format: {}", audioFormat);
+    logger.debug("Audio format: {}",audioFormat);
     DataLine.Info info=new DataLine.Info(SourceDataLine.class,audioFormat,BUFFER_SIZE);
-    logger.debug("Dataline info: {}", info);
+    logger.debug("Dataline info: {}",info);
     if (_mixer!=null&&_mixer.isLineSupported(info))
     {
       _line=(SourceDataLine)_mixer.getLine(info);
-      logger.debug("Mixer: {}", _mixer.getMixerInfo().getDescription());
+      logger.debug("Mixer: {}",_mixer.getMixerInfo().getDescription());
     }
     else
     {
       _line=AudioSystem.getSourceDataLine(audioFormat);
       _mixer=null;
     }
-    logger.debug("Line: {}", _line);
+    logger.debug("Line: {}",_line);
     _line.open(audioFormat,BUFFER_SIZE);
     _line.start();
     if (_line.isControlSupported(FloatControl.Type.VOLUME))
@@ -95,9 +96,9 @@ public class AudioOutput
   public void stop()
   {
     if (_line!=null&&_line.isOpen())
-     {
+    {
       _line.stop();
-     }
+    }
   }
 
   /**
@@ -128,7 +129,7 @@ public class AudioOutput
    */
   public boolean isOpen()
   {
-    return ((_line!=null) && (_line.isOpen()));
+    return ((_line!=null)&&(_line.isOpen()));
   }
 
   /**

@@ -164,7 +164,7 @@ public class AudioPlayer
    */
   synchronized void fireEvent(PlayerEvent.PlayerEventCode event)
   {
-    logger.debug("Player Event: {}", event);
+    logger.debug("Player Event: {}",event);
     PlayerEvent e=new PlayerEvent(event);
     for(PlayerListener listener:_listeners)
     {

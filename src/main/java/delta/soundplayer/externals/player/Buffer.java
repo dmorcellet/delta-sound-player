@@ -87,7 +87,7 @@ public class Buffer
     }
     catch (InterruptedException e)
     {
-      logger.warn("Interrupted exception!", e);
+      logger.warn("Interrupted exception!",e);
     }
 
     if (!_when.isEmpty())
@@ -134,7 +134,7 @@ public class Buffer
   }
 
   /**
-   * Get the size of the managed buffer. 
+   * Get the size of the managed buffer.
    * @return a size in bytes.
    */
   public int size()

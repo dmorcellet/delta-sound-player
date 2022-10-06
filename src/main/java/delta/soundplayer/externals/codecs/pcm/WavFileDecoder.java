@@ -30,7 +30,7 @@ public class WavFileDecoder implements AudioFileDecoder
     File input=track.getFile();
     try
     {
-      logger.debug("Opening file: {}", input);
+      logger.debug("Opening file: {}",input);
       _track=track;
       _audioInputStream=AudioSystem.getAudioInputStream(input);
       AudioFormat oldAudioFormat=_audioInputStream.getFormat();
@@ -42,7 +42,7 @@ public class WavFileDecoder implements AudioFileDecoder
     }
     catch (Exception e)
     {
-      logger.error("Got exception when opening track: "+input, e);
+      logger.error("Got exception when opening track: "+input,e);
       return false;
     }
     return true;
@@ -72,7 +72,7 @@ public class WavFileDecoder implements AudioFileDecoder
     catch (IOException e)
     {
       File input=_track.getFile();
-      logger.error("Got exception when seeking track: "+input+" at sample "+sample, e);
+      logger.error("Got exception when seeking track: "+input+" at sample "+sample,e);
     }
   }
 
@@ -86,7 +86,7 @@ public class WavFileDecoder implements AudioFileDecoder
     catch (IOException e)
     {
       File input=_track.getFile();
-      logger.error("Got exception when decoding track: "+input, e);
+      logger.error("Got exception when decoding track: "+input,e);
     }
     return -1;
   }
@@ -104,7 +104,7 @@ public class WavFileDecoder implements AudioFileDecoder
     catch (IOException e)
     {
       File input=_track.getFile();
-      logger.error("Got exception when closing track: "+input, e);
+      logger.error("Got exception when closing track: "+input,e);
     }
   }
 }

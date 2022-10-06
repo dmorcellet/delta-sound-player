@@ -31,7 +31,7 @@ public class OggVorbisFileDecoder implements AudioFileDecoder
     File input=track.getFile();
     try
     {
-      logger.debug("Opening file: {}", input);
+      logger.debug("Opening file: {}",input);
       _track=track;
       _vorbisFile=new VorbisFile(input.getAbsolutePath());
       Info info=_vorbisFile.getInfo()[0];
@@ -41,7 +41,7 @@ public class OggVorbisFileDecoder implements AudioFileDecoder
     }
     catch (Exception e)
     {
-      logger.error("Got exception when opening track: "+input, e);
+      logger.error("Got exception when opening track: "+input,e);
       return false;
     }
     return true;
@@ -60,7 +60,7 @@ public class OggVorbisFileDecoder implements AudioFileDecoder
     if (ok!=0)
     {
       File input=_track.getFile();
-      logger.error("Got error when seeking track: {} at sample {} => {}", input, Long.valueOf(sample), Integer.valueOf(ok));
+      logger.error("Got error when seeking track: {} at sample {} => {}",input,Long.valueOf(sample),Integer.valueOf(ok));
     }
   }
 
@@ -89,7 +89,7 @@ public class OggVorbisFileDecoder implements AudioFileDecoder
     catch (IOException e)
     {
       File input=_track.getFile();
-      logger.error("Got exception when closing track: "+input, e);
+      logger.error("Got exception when closing track: "+input,e);
     }
   }
 }

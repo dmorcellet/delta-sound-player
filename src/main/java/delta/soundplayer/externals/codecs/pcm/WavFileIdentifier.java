@@ -23,7 +23,7 @@ public class WavFileIdentifier extends AudioFileIdentifier
   @Override
   public Track identify(File input)
   {
-    Track track = new Track(input,"WAV");
+    Track track=new Track(input,"WAV");
     try
     {
       AudioFileFormat format=AudioSystem.getAudioFileFormat(input);
@@ -43,7 +43,7 @@ public class WavFileIdentifier extends AudioFileIdentifier
     }
     catch (Exception e)
     {
-      logger.warn("Couldn't read file: "+track.getFile(), e);
+      logger.warn("Couldn't read file: "+track.getFile(),e);
     }
     return track;
   }
