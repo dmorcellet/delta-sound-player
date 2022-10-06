@@ -12,13 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Facade for udio output.
+ * Facade for audio output.
  * @author DAM
  */
 public class AudioOutput
 {
   private static final Logger logger=LoggerFactory.getLogger(AudioOutput.class);
 
+  /**
+   * Default size for buffers.
+   */
   public static final int BUFFER_SIZE=(int)(Math.pow(2,15)/24)*24;
 
   private SourceDataLine _line;
@@ -166,11 +169,18 @@ public class AudioOutput
     }
   }
 
+  /**
+   * Get the current volume.
+   * @return A volume value.
+   */
   public float getVolume()
   {
     if (_volumeControl!=null)
     {
-      if (_linearVolume) return this._volumeControl.getValue()/_volumeControl.getMaximum();
+      if (_linearVolume)
+      {
+        return this._volumeControl.getValue()/_volumeControl.getMaximum();
+      }
       return dbToLinear(_volumeControl.getValue());
     }
     return _volume;

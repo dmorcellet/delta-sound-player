@@ -9,21 +9,30 @@ import delta.soundplayer.externals.data.Track;
 import delta.soundplayer.externals.player.PlayerEvent.PlayerEventCode;
 import delta.soundplayer.externals.utils.AudioMath;
 
+/**
+ * A thread to play audio.
+ * @author DAM
+ */
 public class PlayingThread extends Actor implements Runnable
 {
   private static final Logger logger=LoggerFactory.getLogger(PlayingThread.class);
 
   private static final int BUFFER_SIZE=AudioOutput.BUFFER_SIZE;
 
-  private AudioFormat format;
+  private AudioFormat _format;
   private AudioPlayer _player;
   private Buffer _buffer;
-  private final Object lock=new Object();
-  private AudioOutput output=new AudioOutput();
-  private Track currentTrack;
-  private long currentByte;
-  private boolean active=false;
+  private final Object _lock=new Object();
+  private AudioOutput _output=new AudioOutput();
+  private Track _currentTrack;
+  private long _currentByte;
+  private boolean _active=false;
 
+  /**
+   * Constructor.
+   * @param player Associated player.
+   * @param buffer Associated buffer.
+   */
   public PlayingThread(AudioPlayer player, Buffer buffer)
   {
     _player=player;
@@ -36,7 +45,7 @@ public class PlayingThread extends Actor implements Runnable
     switch (message)
     {
       case PAUSE:
-        setState(!active);
+        setState(!_active);
       break;
       case PLAY:
         setState(true);
@@ -45,7 +54,7 @@ public class PlayingThread extends Actor implements Runnable
         stop();
       break;
       case FLUSH:
-        output.flush();
+        _output.flush();
       break;
       default:
       break;
@@ -54,20 +63,20 @@ public class PlayingThread extends Actor implements Runnable
 
   private void stop()
   {
-    output.flush();
+    _output.flush();
     setState(false);
-    output.close();
+    _output.close();
     _player.fireEvent(PlayerEventCode.STOPPED);
   }
 
   private void setState(boolean newState)
   {
-    if (active!=newState)
+    if (_active!=newState)
     {
-      active=newState;
-      synchronized (lock)
+      _active=newState;
+      synchronized (_lock)
       {
-        lock.notifyAll();
+        _lock.notifyAll();
       }
     }
   }
@@ -78,26 +87,26 @@ public class PlayingThread extends Actor implements Runnable
     byte[] buf=new byte[BUFFER_SIZE];
     while (true)
     {
-      synchronized (lock)
+      synchronized (_lock)
       {
         try
         {
-          while (!active)
+          while (!_active)
           {
-            if (output.isOpen())
+            if (_output.isOpen())
             {
               _player.fireEvent(PlayerEventCode.PAUSED);
             }
-            output.stop();
+            _output.stop();
             System.gc();
-            lock.wait();
+            _lock.wait();
           }
 
-          output.start();
+          _output.start();
           _player.fireEvent(PlayerEventCode.PLAYING_STARTED);
-          out: while (active)
+          out: while (_active)
           {
-            int len=_buffer.read(buf,0,BUFFER_SIZE);
+            int len=_buffer.read(buf,BUFFER_SIZE);
             while (len==-1)
             {
               if (!openNext())
@@ -105,16 +114,16 @@ public class PlayingThread extends Actor implements Runnable
                 stop();
                 break out;
               }
-              len=_buffer.read(buf,0,BUFFER_SIZE);
+              len=_buffer.read(buf,BUFFER_SIZE);
             }
-            currentByte+=len;
-            output.write(buf,0,len);
+            _currentByte+=len;
+            _output.write(buf,0,len);
           }
         }
         catch (Exception e)
         {
           logger.warn("Exception while playing. Stopping now",e);
-          currentTrack=null;
+          _currentTrack=null;
           stop();
         }
       }
@@ -131,21 +140,21 @@ public class PlayingThread extends Actor implements Runnable
       {
         return false;
       }
-      currentTrack=nextEntry._track;
+      _currentTrack=nextEntry._track;
       if (nextEntry._forced)
       {
-        output.flush();
+        _output.flush();
       }
-      format=nextEntry._format;
-      output.init(format);
+      _format=nextEntry._format;
+      _output.init(_format);
       if (nextEntry._startSample>=0)
       {
-        currentByte=AudioMath.samplesToBytes(nextEntry._startSample,format.getFrameSize());
+        _currentByte=AudioMath.samplesToBytes(nextEntry._startSample,_format.getFrameSize());
         _player.fireEvent(PlayerEventCode.SEEK_FINISHED);
       }
       else
       {
-        currentByte=0;
+        _currentByte=0;
         _player.fireEvent(PlayerEventCode.FILE_OPENED);
       }
       return true;
@@ -157,26 +166,42 @@ public class PlayingThread extends Actor implements Runnable
     }
   }
 
+  /**
+   * Get the current track.
+   * @return the current track.
+   */
   public Track getCurrentTrack()
   {
-    return currentTrack;
+    return _currentTrack;
   }
 
+  /**
+   * Get the audio output.
+   * @return the audio output.
+   */
   public AudioOutput getOutput()
   {
-    return output;
+    return _output;
   }
 
+  /**
+   * Indicates if this thread is active or not.
+   * @return <code>true</code> if it is, code>false</code> otherwise.
+   */
   public boolean isActive()
   {
-    return active;
+    return _active;
   }
 
+  /**
+   * Get the current sample position.
+   * @return the current sample position.
+   */
   public long getCurrentSample()
   {
-    if (format!=null)
+    if (_format!=null)
     {
-      return AudioMath.bytesToSamples(currentByte,format.getFrameSize());
+      return AudioMath.bytesToSamples(_currentByte,_format.getFrameSize());
     }
     return 0;
   }

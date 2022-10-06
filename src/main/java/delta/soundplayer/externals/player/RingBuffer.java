@@ -70,13 +70,19 @@ public class RingBuffer
   }
 
   /**
-   * return the space avaiable for writing.
-   * @return The byte that may be written to the ring buffer
+   * return the space available for writing.
+   * @return The number of bytes that may be written to the ring buffer
    */
   public int putAvailable()
   {
-    if (putHere==getHere) return bufferSize-1;
-    if (putHere<getHere) return getHere-putHere-1;
+    if (putHere==getHere)
+    {
+      return bufferSize-1;
+    }
+    if (putHere<getHere)
+    {
+      return getHere-putHere-1;
+    }
     return bufferSize-(putHere-getHere)-1;
   }
 
@@ -220,15 +226,6 @@ public class RingBuffer
   public void setEOF(boolean eof)
   {
     _eof=eof;
-  }
-
-  public void removeTail(long bytes)
-  {
-    synchronized (signal)
-    {
-      putHere-=bytes;
-      if (putHere<0) putHere+=size();
-    }
   }
 
   /**

@@ -7,6 +7,10 @@ import delta.soundplayer.externals.codecs.AudioFileDecoder;
 import delta.soundplayer.externals.codecs.Decoders;
 import delta.soundplayer.externals.data.Track;
 
+/**
+ * Buffering thread.
+ * @author DAM
+ */
 public class BufferingThread extends Actor implements Runnable
 {
   private static final Logger logger=LoggerFactory.getLogger(BufferingThread.class);
@@ -19,6 +23,11 @@ public class BufferingThread extends Actor implements Runnable
   private Buffer _buffer;
   private PlayingThread _playingThread;
 
+  /**
+   * Buffering thread.
+   * @param buffer Managed buffer.
+   * @param playingThread Playing thread.
+   */
   public BufferingThread(Buffer buffer, PlayingThread playingThread)
   {
     _buffer=buffer;
@@ -96,6 +105,10 @@ public class BufferingThread extends Actor implements Runnable
     }
   }
 
+  /**
+   * Stop.
+   * @param flush Flush or not.
+   */
   public void stop(boolean flush)
   {
     logger.debug("Stop buffering");
@@ -114,6 +127,7 @@ public class BufferingThread extends Actor implements Runnable
     if (flush) _buffer.flush();
     synchronized (lock)
     {
+      // Nothing!
     }
     if (flush) _buffer.flush();
   }
@@ -162,6 +176,10 @@ public class BufferingThread extends Actor implements Runnable
     }
   }
 
+  /**
+   * Seek.
+   * @param sample Sample to seek.
+   */
   public void seek(long sample)
   {
     boolean oldState=active;
@@ -178,6 +196,10 @@ public class BufferingThread extends Actor implements Runnable
     }
   }
 
+  /**
+   * Indicates if this thread is active or not.
+   * @return <code>true</code> if it is, <code>false</code> otherwise.
+   */
   public boolean isActive()
   {
     return active;

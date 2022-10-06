@@ -1,17 +1,31 @@
 package delta.soundplayer.externals.utils;
 
 /**
- * @author dmorcellet
+ * Misc. utilities.
+ * @author DAM
  */
 public class Util
 {
+  /**
+   * Remove extension from a file name.
+   * @param s Input file name.
+   * @return the file name without its extension (if any).
+   */
   public static String removeExt(String s)
   {
     int index=s.lastIndexOf(".");
-    if (index==-1) index=s.length();
+    if (index==-1)
+    {
+      index=s.length();
+    }
     return s.substring(0,index);
   }
 
+  /**
+   * Get the file extension.
+   * @param fileName Input file name.
+   * @return An extension (without ".") or empty string if none.
+   */
   public static String getFileExt(String fileName)
   {
     int pos=fileName.lastIndexOf(".");
@@ -19,14 +33,23 @@ public class Util
     return fileName.substring(pos+1).toLowerCase();
   }
 
-  public static String samplesToTime(long samples, int sampleRate, int precision)
+  /**
+   * Get a displayable time position from samples count and samples rate.
+   * @param samples Samples count.
+   * @param sampleRate Samples rate.
+   * @return A displayable time.
+   */
+  public static String samplesToTime(long samples, int sampleRate)
   {
-    if (samples<=0) return "-:--";
+    if (samples<=0)
+    {
+      return "-:--";
+    }
     double seconds=AudioMath.samplesToMillis(samples,sampleRate)/1000f;
-    return formatSeconds(seconds,precision);
+    return formatSeconds(seconds);
   }
 
-  public static String formatSeconds(double seconds, int precision)
+  private static String formatSeconds(double seconds)
   {
     int min=(int)((Math.round(seconds))/60);
     int hrs=min/60;
@@ -49,5 +72,4 @@ public class Util
     builder.append(Math.round(sec));
     return builder.toString();
   }
-
 }

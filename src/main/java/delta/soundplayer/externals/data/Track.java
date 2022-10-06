@@ -128,7 +128,7 @@ public class Track
   {
     if (_length==null)
     {
-      _length=Util.samplesToTime(_totalSamples,_sampleRate,0);
+      _length=Util.samplesToTime(_totalSamples,_sampleRate);
     }
     return _length;
   }

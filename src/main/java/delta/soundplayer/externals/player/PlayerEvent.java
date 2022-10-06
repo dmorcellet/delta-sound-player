@@ -1,5 +1,9 @@
 package delta.soundplayer.externals.player;
 
+/**
+ * Player event.
+ * @author DAM
+ */
 public class PlayerEvent
 {
   /**
@@ -8,11 +12,34 @@ public class PlayerEvent
    */
   public enum PlayerEventCode
   {
-    FILE_OPENED, PLAYING_STARTED, PAUSED, STOPPED, SEEK_FINISHED
+    /**
+     * File opened.
+     */
+    FILE_OPENED,
+    /**
+     * Audio playing started.
+     */
+    PLAYING_STARTED,
+    /**
+     * Paused.
+     */
+    PAUSED,
+    /**
+     * Stopped.
+     */
+    STOPPED,
+    /**
+     * Seek finished.
+     */
+    SEEK_FINISHED
   }
 
   private PlayerEventCode _eventCode;
 
+  /**
+   * Constructor.
+   * @param eventCode Event code.
+   */
   public PlayerEvent(PlayerEventCode eventCode)
   {
     _eventCode=eventCode;
