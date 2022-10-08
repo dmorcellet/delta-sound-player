@@ -6,8 +6,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.io.File;
 
 import javax.swing.JFileChooser;
@@ -17,9 +15,6 @@ import javax.swing.Popup;
 import javax.swing.PopupFactory;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.plaf.basic.BasicSliderUI;
 
 import delta.soundplayer.externals.codecs.AudioFileIdentifier;
 import delta.soundplayer.externals.codecs.Identifiers;
@@ -38,7 +33,7 @@ public class ControlPanel extends javax.swing.JPanel
 {
   private Application app=Application.getInstance();
   private AudioPlayer player=app.getPlayer();
-  private AudioOutput output=player.getAudioOutput();
+  private final AudioOutput output=player.getAudioOutput();
   private Popup popup;
   private JToolTip toolTip;
   private PopupFactory popupFactory=PopupFactory.getSharedInstance();
@@ -47,12 +42,14 @@ public class ControlPanel extends javax.swing.JPanel
   private boolean isSeeking=false;
   private boolean progressEnabled=false;
   private MouseAdapter progressMouseListener;
+  private VolumeController volume;
 
   /**
    * Creates new form ControlBar
    */
   public ControlPanel()
   {
+    volume=new VolumeController(output);
     initComponents();
     initButtonListeners();
     initSliders();
@@ -130,38 +127,6 @@ public class ControlPanel extends javax.swing.JPanel
   {
     toolTip=progressSlider.createToolTip();
 
-    volumeSlider.addChangeListener(new ChangeListener()
-    {
-      public void stateChanged(ChangeEvent e)
-      {
-        float volume=volumeSlider.getValue()/100f;
-        output.setVolume(volume);
-      }
-    });
-
-    volumeSlider.addMouseListener(new MouseAdapter()
-    {
-      @Override
-      public void mousePressed(MouseEvent e)
-      {
-        volumeSlider.setValue(getSliderValueForX(volumeSlider,e.getX()));
-      }
-    });
-
-    volumeSlider.addMouseWheelListener(new MouseWheelListener()
-    {
-      @Override
-      public void mouseWheelMoved(MouseWheelEvent e)
-      {
-        int value=volumeSlider.getValue();
-        if (e.getWheelRotation()>0)
-          value-=5;
-        else
-          value+=5;
-        volumeSlider.setValue(value);
-      }
-    });
-
     progressSlider.addMouseMotionListener(new MouseMotionAdapter()
     {
       @Override
@@ -186,7 +151,7 @@ public class ControlPanel extends javax.swing.JPanel
       {
         if (!progressEnabled) return;
         isSeeking=true;
-        progressSlider.setValue(getSliderValueForX(progressSlider,e.getX()));
+        progressSlider.setValue(SlidersUtils.getSliderValueForX(progressSlider,e.getX()));
         hideToolTip();
         showToolTip(e);
       }
@@ -199,14 +164,9 @@ public class ControlPanel extends javax.swing.JPanel
       public void mouseDragged(MouseEvent e)
       {
         if (!progressEnabled) return;
-        progressSlider.setValue(getSliderValueForX(progressSlider,e.getX()));
+        progressSlider.setValue(SlidersUtils.getSliderValueForX(progressSlider,e.getX()));
       }
     });
-  }
-
-  private int getSliderValueForX(JSlider slider, int x)
-  {
-    return ((BasicSliderUI)slider.getUI()).valueForXPosition(x);
   }
 
   private void showToolTip(MouseEvent e)
@@ -301,8 +261,6 @@ public class ControlPanel extends javax.swing.JPanel
     {
       boolean windowsLaF=true;
       progressSlider.setPaintTicks(windowsLaF);
-      volumeSlider.setPaintTicks(windowsLaF);
-
       SwingUtilities.invokeLater(new Runnable()
       {
         @Override
@@ -333,7 +291,6 @@ public class ControlPanel extends javax.swing.JPanel
     playButton=new javax.swing.JButton();
     chooseButton=new javax.swing.JButton();
     pauseButton=new javax.swing.JToggleButton();
-    volumeSlider=new javax.swing.JSlider();
     progressSlider=new javax.swing.JSlider();
     statusLabel=new javax.swing.JLabel();
 
@@ -378,9 +335,6 @@ public class ControlPanel extends javax.swing.JPanel
     pauseButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
     jToolBar1.add(pauseButton);
 
-    volumeSlider.setValue((int)(output.getVolume()*100));
-    volumeSlider.setFocusable(false);
-
     progressSlider.setValue(0);
     progressSlider.setFocusable(false);
 
@@ -388,6 +342,7 @@ public class ControlPanel extends javax.swing.JPanel
 
     javax.swing.GroupLayout layout=new javax.swing.GroupLayout(this);
     this.setLayout(layout);
+    JSlider volumeSlider=volume.getSlider();
     layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup()
         .addComponent(jToolBar1,javax.swing.GroupLayout.PREFERRED_SIZE,javax.swing.GroupLayout.DEFAULT_SIZE,javax.swing.GroupLayout.PREFERRED_SIZE)
         .addGap(4,4,4).addComponent(volumeSlider,javax.swing.GroupLayout.PREFERRED_SIZE,119,javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -401,13 +356,10 @@ public class ControlPanel extends javax.swing.JPanel
         .addComponent(jToolBar1,javax.swing.GroupLayout.PREFERRED_SIZE,31,javax.swing.GroupLayout.PREFERRED_SIZE));
   }// </editor-fold>//GEN-END:initComponents
 
-  // Variables declaration - do not modify//GEN-BEGIN:variables
   javax.swing.JToggleButton pauseButton;
   javax.swing.JButton playButton;
   javax.swing.JButton chooseButton;
   javax.swing.JSlider progressSlider;
   javax.swing.JLabel statusLabel;
   javax.swing.JButton stopButton;
-  javax.swing.JSlider volumeSlider;
-  // End of variables declaration//GEN-END:variables
 }
