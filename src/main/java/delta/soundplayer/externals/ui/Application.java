@@ -67,12 +67,6 @@ public class Application
       {
         public void run()
         {
-          if (mainWindow!=null)
-          {
-            mainWindow.shutdown();
-            mainWindow=null;
-          }
-
           mainWindow=new MainWindow();
           mainWindow.setVisible(true);
         }
