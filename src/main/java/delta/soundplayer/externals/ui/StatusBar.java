@@ -24,17 +24,19 @@ import delta.soundplayer.externals.player.PlayerListener;
  */
 public class StatusBar extends JPanel
 {
-  private JLabel info;
-
-  private Application app=Application.getInstance();
-  private AudioPlayer player=app.getPlayer();
+  // Audio player
+  private AudioPlayer _player;
+  // UI
+  private JLabel _info;
 
   /**
    * Constructor.
+   * @param player the managed player.
    */
-  public StatusBar()
+  public StatusBar(AudioPlayer player)
   {
-    info=new JLabel("Stopped");
+    _player=player;
+    _info=new JLabel("Stopped");
 
     setLayout(new BorderLayout());
     setPreferredSize(new Dimension(10,23));
@@ -42,7 +44,7 @@ public class StatusBar extends JPanel
     setBorder(BorderFactory.createMatteBorder(2,0,0,0,Color.lightGray));
 
     Box box=new Box(BoxLayout.X_AXIS);
-    box.add(info);
+    box.add(_info);
     box.add(Box.createGlue());
     box.add(Box.createHorizontalStrut(10));
     add(box);
@@ -56,25 +58,25 @@ public class StatusBar extends JPanel
     {
       public void actionPerformed(ActionEvent e)
       {
-        if (player.isPlaying())
+        if (_player.isPlaying())
         {
 
-          Track track=player.getTrack();
+          Track track=_player.getTrack();
           String codec=track.getFormat();
           int bitrate=track.getBitrate();
           int sampleRate=track.getSampleRate();
           String channels=track.getChannelsAsString();
           String length=track.getLength();
-          String playingTime=UiUtils.playingTime(player,player.getTrack());
+          String playingTime=UiUtils.playingTime(_player,_player.getTrack());
           String fullPlayingTime=(playingTime!=null)?playingTime+" / "+length:"";
           String text=codec+" | "+bitrate+" kbps | "+sampleRate+" Hz | "+channels+" | "+fullPlayingTime;
-          info.setText(text);
+          _info.setText(text);
         }
       }
     });
     timer.start();
 
-    player.addListener(new PlayerListener()
+    _player.addListener(new PlayerListener()
     {
       public void onEvent(PlayerEvent e)
       {
@@ -84,7 +86,7 @@ public class StatusBar extends JPanel
             timer.start();
           break;
           case STOPPED:
-            info.setText("Stopped");
+            _info.setText("Stopped");
           case PAUSED:
             timer.stop();
           default:

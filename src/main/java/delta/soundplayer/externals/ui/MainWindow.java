@@ -2,10 +2,10 @@ package delta.soundplayer.externals.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Rectangle;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
+
+import delta.soundplayer.externals.player.AudioPlayer;
 
 /**
  * Main window for this player.
@@ -13,15 +13,14 @@ import javax.swing.JFrame;
  */
 public class MainWindow extends JFrame
 {
-  private Application app=Application.getInstance();
-
   /**
    * Constructor.
+   * @param player the managed player.
    */
-  public MainWindow()
+  public MainWindow(AudioPlayer player)
   {
-    ControlPanel controlPanel=new ControlPanel();
-    StatusBar statusBar=new StatusBar();
+    ControlPanel controlPanel=new ControlPanel(player);
+    StatusBar statusBar=new StatusBar(player);
     add(controlPanel,BorderLayout.NORTH);
     add(statusBar,BorderLayout.SOUTH);
 
@@ -30,15 +29,6 @@ public class MainWindow extends JFrame
     setLocation((int)r.getX(),(int)r.getY());
     setSize((int)r.getWidth(),(int)r.getHeight());
     setExtendedState(0);
-
-    addWindowListener(new WindowAdapter()
-    {
-      @Override
-      public void windowClosing(WindowEvent e)
-      {
-        app.exit();
-      }
-    });
   }
 
   /**

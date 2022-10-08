@@ -1,5 +1,8 @@
 package delta.soundplayer.externals.ui;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -16,30 +19,15 @@ public class Application
 {
   private static final Logger logger=LoggerFactory.getLogger(Application.class);
 
-  private static Application ourInstance=new Application();
-
-  private AudioPlayer player;
-  private MainWindow mainWindow;
+  private AudioPlayer _player;
+  private MainWindow _mainWindow;
 
   /**
-   * Get the sole instance of this class.
-   * @return the sole instance of this class.
+   * Constructor.
    */
-  public static Application getInstance()
+  public Application()
   {
-    return ourInstance;
-  }
-
-  private Application()
-  {
-  }
-
-  /**
-   * Load application.
-   */
-  public void load()
-  {
-    player=new AudioPlayer();
+    _player=new AudioPlayer();
     loadSettings();
   }
 
@@ -67,8 +55,17 @@ public class Application
       {
         public void run()
         {
-          mainWindow=new MainWindow();
-          mainWindow.setVisible(true);
+          _mainWindow=new MainWindow(_player);
+          _mainWindow.setVisible(true);
+
+          _mainWindow.addWindowListener(new WindowAdapter()
+          {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+              exit();
+            }
+          });
         }
       });
     }
@@ -83,22 +80,13 @@ public class Application
    */
   public void exit()
   {
-    player.stop();
+    _player.stop();
 
-    if (mainWindow!=null)
+    if (_mainWindow!=null)
     {
-      mainWindow.shutdown();
+      _mainWindow.shutdown();
     }
 
     System.exit(0);
-  }
-
-  /**
-   * Get the audio player.
-   * @return the audio player.
-   */
-  public AudioPlayer getPlayer()
-  {
-    return player;
   }
 }

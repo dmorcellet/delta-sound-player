@@ -11,7 +11,6 @@ import javax.swing.Timer;
 import delta.soundplayer.externals.codecs.AudioFileIdentifier;
 import delta.soundplayer.externals.codecs.Identifiers;
 import delta.soundplayer.externals.data.Track;
-import delta.soundplayer.externals.player.AudioOutput;
 import delta.soundplayer.externals.player.AudioPlayer;
 import delta.soundplayer.externals.player.PlayerEvent;
 import delta.soundplayer.externals.player.PlayerListener;
@@ -22,20 +21,22 @@ import delta.soundplayer.externals.player.PlayerListener;
  */
 public class ControlPanel extends javax.swing.JPanel
 {
-  private Application app=Application.getInstance();
-  private AudioPlayer player=app.getPlayer();
-  private final AudioOutput output=player.getAudioOutput();
+  // Audio player
+  private AudioPlayer _player;
+  // UI
   private JFileChooser chooser;
-
+  // Controllers
   private VolumeController volume;
   private ProgressController progress;
 
   /**
-   * Creates new form ControlBar
+   * Constructor.
+   * @param player the managed player.
    */
-  public ControlPanel()
+  public ControlPanel(AudioPlayer player)
   {
-    volume=new VolumeController(output);
+    _player=player;
+    volume=new VolumeController(player.getAudioOutput());
     progress=new ProgressController(player);
     initComponents();
     initButtonListeners();
@@ -50,7 +51,7 @@ public class ControlPanel extends javax.swing.JPanel
       public void actionPerformed(ActionEvent e)
       {
         progress.handleTick();
-        if (player.isPlaying())
+        if (_player.isPlaying())
         {
           updateStatus();
         }
@@ -58,11 +59,11 @@ public class ControlPanel extends javax.swing.JPanel
     });
     timer.start();
 
-    player.addListener(new PlayerListener()
+    _player.addListener(new PlayerListener()
     {
       public void onEvent(PlayerEvent e)
       {
-        pauseButton.setSelected(player.isPaused());
+        pauseButton.setSelected(_player.isPaused());
         switch (e.getEventCode())
         {
           case PLAYING_STARTED:
@@ -77,7 +78,7 @@ public class ControlPanel extends javax.swing.JPanel
             statusLabel.setText(null);
           break;
           case FILE_OPENED:
-            Track track=player.getTrack();
+            Track track=_player.getTrack();
             progress.handleNewTrack(track);
             updateStatus();
           break;
@@ -91,7 +92,7 @@ public class ControlPanel extends javax.swing.JPanel
 
   private void updateStatus()
   {
-    String text=UiUtils.playingTime(player,player.getTrack());
+    String text=UiUtils.playingTime(_player,_player.getTrack());
     statusLabel.setText(text);
   }
 
@@ -114,7 +115,7 @@ public class ControlPanel extends javax.swing.JPanel
     if (identifier!=null)
     {
       track=identifier.identify(file);
-      player.open(track);
+      _player.open(track);
     }
   }
 
@@ -131,7 +132,7 @@ public class ControlPanel extends javax.swing.JPanel
     {
       public void actionPerformed(ActionEvent e)
       {
-        player.play();
+        _player.play();
       }
     });
     stopButton.addActionListener(new ActionListener()
@@ -139,14 +140,14 @@ public class ControlPanel extends javax.swing.JPanel
       @Override
       public void actionPerformed(ActionEvent e)
       {
-        player.stop();
+        _player.stop();
       }
     });
     pauseButton.addActionListener(new ActionListener()
     {
       public void actionPerformed(ActionEvent e)
       {
-        player.pause();
+        _player.pause();
       }
     });
   }
