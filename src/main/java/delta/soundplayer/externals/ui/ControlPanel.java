@@ -2,18 +2,10 @@ package delta.soundplayer.externals.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.JSlider;
-import javax.swing.JToolTip;
-import javax.swing.Popup;
-import javax.swing.PopupFactory;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import delta.soundplayer.externals.codecs.AudioFileIdentifier;
@@ -23,7 +15,6 @@ import delta.soundplayer.externals.player.AudioOutput;
 import delta.soundplayer.externals.player.AudioPlayer;
 import delta.soundplayer.externals.player.PlayerEvent;
 import delta.soundplayer.externals.player.PlayerListener;
-import delta.soundplayer.externals.utils.Util;
 
 /**
  * Control panel for the audio player.
@@ -34,15 +25,10 @@ public class ControlPanel extends javax.swing.JPanel
   private Application app=Application.getInstance();
   private AudioPlayer player=app.getPlayer();
   private final AudioOutput output=player.getAudioOutput();
-  private Popup popup;
-  private JToolTip toolTip;
-  private PopupFactory popupFactory=PopupFactory.getSharedInstance();
   private JFileChooser chooser;
 
-  private boolean isSeeking=false;
-  private boolean progressEnabled=false;
-  private MouseAdapter progressMouseListener;
   private VolumeController volume;
+  private ProgressController progress;
 
   /**
    * Creates new form ControlBar
@@ -50,9 +36,9 @@ public class ControlPanel extends javax.swing.JPanel
   public ControlPanel()
   {
     volume=new VolumeController(output);
+    progress=new ProgressController(player);
     initComponents();
     initButtonListeners();
-    initSliders();
     initPlayerListeners();
     updateUI();
   }
@@ -63,11 +49,11 @@ public class ControlPanel extends javax.swing.JPanel
     {
       public void actionPerformed(ActionEvent e)
       {
-        if (progressEnabled&&player.isPlaying()&&!isSeeking)
+        progress.handleTick();
+        if (player.isPlaying())
         {
-          progressSlider.setValue((int)player.getCurrentSample());
+          updateStatus();
         }
-        if (player.isPlaying()) updateStatus();
       }
     });
     timer.start();
@@ -87,30 +73,16 @@ public class ControlPanel extends javax.swing.JPanel
           break;
           case STOPPED:
             timer.stop();
-            progressEnabled=false;
-            progressSlider.setValue(progressSlider.getMinimum());
+            progress.handleStop();
             statusLabel.setText(null);
           break;
           case FILE_OPENED:
             Track track=player.getTrack();
-            if (track!=null)
-            {
-              int max=(int)track.getTotalSamples();
-              if (max==-1)
-              {
-                progressEnabled=false;
-              }
-              else
-              {
-                progressEnabled=true;
-                progressSlider.setMaximum(max);
-              }
-            }
-            progressSlider.setValue((int)player.getCurrentSample());
+            progress.handleNewTrack(track);
             updateStatus();
           break;
           case SEEK_FINISHED:
-            isSeeking=false;
+            progress.handleSeekFinished();
           break;
         }
       }
@@ -121,75 +93,6 @@ public class ControlPanel extends javax.swing.JPanel
   {
     String text=UiUtils.playingTime(player,player.getTrack());
     statusLabel.setText(text);
-  }
-
-  private void initSliders()
-  {
-    toolTip=progressSlider.createToolTip();
-
-    progressSlider.addMouseMotionListener(new MouseMotionAdapter()
-    {
-      @Override
-      public void mouseDragged(MouseEvent e)
-      {
-        if (!progressEnabled) return;
-        hideToolTip();
-        showToolTip(e);
-      }
-    });
-
-    progressMouseListener=new MouseAdapter()
-    {
-      public void mouseReleased(MouseEvent e)
-      {
-        if (!progressEnabled) return;
-        hideToolTip();
-        player.seek(progressSlider.getValue());
-      }
-
-      public void mousePressed(MouseEvent e)
-      {
-        if (!progressEnabled) return;
-        isSeeking=true;
-        progressSlider.setValue(SlidersUtils.getSliderValueForX(progressSlider,e.getX()));
-        hideToolTip();
-        showToolTip(e);
-      }
-    };
-    progressSlider.addMouseListener(progressMouseListener);
-
-    progressSlider.addMouseMotionListener(new MouseMotionAdapter()
-    {
-      @Override
-      public void mouseDragged(MouseEvent e)
-      {
-        if (!progressEnabled) return;
-        progressSlider.setValue(SlidersUtils.getSliderValueForX(progressSlider,e.getX()));
-      }
-    });
-  }
-
-  private void showToolTip(MouseEvent e)
-  {
-    Track s=player.getTrack();
-    if (s!=null)
-    {
-      toolTip.setTipText(Util.samplesToTime(progressSlider.getValue()-progressSlider.getMinimum(),s.getSampleRate()));
-      int x=e.getXOnScreen();
-      x=Math.max(x,progressSlider.getLocationOnScreen().x);
-      x=Math.min(x,progressSlider.getLocationOnScreen().x+progressSlider.getWidth()-toolTip.getWidth());
-      popup=popupFactory.getPopup(progressSlider,toolTip,x,progressSlider.getLocationOnScreen().y+25);
-      popup.show();
-    }
-  }
-
-  private void hideToolTip()
-  {
-    if (popup!=null)
-    {
-      popup.hide();
-      popup=null;
-    }
   }
 
   private void choose()
@@ -248,34 +151,6 @@ public class ControlPanel extends javax.swing.JPanel
     });
   }
 
-  @Override
-  public void updateUI()
-  {
-    super.updateUI();
-    fixSliderWidth();
-  }
-
-  private void fixSliderWidth()
-  {
-    if (progressSlider!=null)
-    {
-      boolean windowsLaF=true;
-      progressSlider.setPaintTicks(windowsLaF);
-      SwingUtilities.invokeLater(new Runnable()
-      {
-        @Override
-        public void run()
-        {
-          for(MouseListener ml:progressSlider.getMouseListeners())
-          {
-            progressSlider.removeMouseListener(ml);
-          }
-          progressSlider.addMouseListener(progressMouseListener);
-        }
-      });
-    }
-  }
-
   /**
    * This method is called from within the constructor to initialize the form.
    * WARNING: Do NOT modify this code. The content of this method is always
@@ -291,7 +166,6 @@ public class ControlPanel extends javax.swing.JPanel
     playButton=new javax.swing.JButton();
     chooseButton=new javax.swing.JButton();
     pauseButton=new javax.swing.JToggleButton();
-    progressSlider=new javax.swing.JSlider();
     statusLabel=new javax.swing.JLabel();
 
     setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createMatteBorder(0,0,1,0,java.awt.Color.gray),
@@ -335,14 +209,12 @@ public class ControlPanel extends javax.swing.JPanel
     pauseButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
     jToolBar1.add(pauseButton);
 
-    progressSlider.setValue(0);
-    progressSlider.setFocusable(false);
-
     statusLabel.setFont(statusLabel.getFont().deriveFont(statusLabel.getFont().getStyle()|java.awt.Font.BOLD));
 
     javax.swing.GroupLayout layout=new javax.swing.GroupLayout(this);
     this.setLayout(layout);
     JSlider volumeSlider=volume.getSlider();
+    JSlider progressSlider=progress.getSlider();
     layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup()
         .addComponent(jToolBar1,javax.swing.GroupLayout.PREFERRED_SIZE,javax.swing.GroupLayout.DEFAULT_SIZE,javax.swing.GroupLayout.PREFERRED_SIZE)
         .addGap(4,4,4).addComponent(volumeSlider,javax.swing.GroupLayout.PREFERRED_SIZE,119,javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -359,7 +231,6 @@ public class ControlPanel extends javax.swing.JPanel
   javax.swing.JToggleButton pauseButton;
   javax.swing.JButton playButton;
   javax.swing.JButton chooseButton;
-  javax.swing.JSlider progressSlider;
   javax.swing.JLabel statusLabel;
   javax.swing.JButton stopButton;
 }

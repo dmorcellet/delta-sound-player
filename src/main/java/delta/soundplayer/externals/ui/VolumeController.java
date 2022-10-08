@@ -44,7 +44,7 @@ public class VolumeController
 
   private void init()
   {
-    _volumeSlider.setPaintTicks(true);
+    _volumeSlider.setPaintTicks(false);
     _volumeSlider.setValue((int)(_output.getVolume()*100));
     _volumeSlider.setFocusable(false);
 
