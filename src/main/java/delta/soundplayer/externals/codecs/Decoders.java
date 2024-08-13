@@ -1,12 +1,10 @@
 package delta.soundplayer.externals.codecs;
 
-import java.io.File;
 import java.util.HashMap;
 
 import delta.soundplayer.externals.codecs.oggvorbis.OggVorbisFileDecoder;
 import delta.soundplayer.externals.codecs.pcm.WavFileDecoder;
 import delta.soundplayer.externals.data.Track;
-import delta.soundplayer.externals.utils.Util;
 
 /**
  * Factory for audio files decoders.
@@ -29,8 +27,7 @@ public class Decoders
    */
   public static AudioFileDecoder getDecoder(Track track)
   {
-    File location=track.getFile();
-    String ext=Util.getFileExt(location.getName()).toLowerCase();
-    return decoders.get(ext);
+    String format=track.getFormat().toLowerCase();
+    return decoders.get(format);
   }
 }

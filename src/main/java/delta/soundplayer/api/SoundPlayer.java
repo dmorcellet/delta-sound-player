@@ -1,5 +1,7 @@
 package delta.soundplayer.api;
 
+import java.io.File;
+
 /**
  * Interface of the sound player.
  * @author DAM
@@ -7,15 +9,11 @@ package delta.soundplayer.api;
 public interface SoundPlayer
 {
   /**
-   * Set the sound.
-   * @param sound Sound to set.
+   * Start playing a sound file..
+   * @param soundFile Sound file.
+   * @param format Sound format.
    */
-  void setSound(Sound sound);
-
-  /**
-   * Start play-back.
-   */
-  void start();
+  void start(File soundFile, SoundFormat format);
 
   /**
    * Stop play-back.

@@ -40,7 +40,7 @@ public class Application
     }
     catch (Exception e)
     {
-      System.err.println("Could not load LaF: "+e.getCause());
+      logger.warn("Could not load LaF:",e);
     }
   }
 
