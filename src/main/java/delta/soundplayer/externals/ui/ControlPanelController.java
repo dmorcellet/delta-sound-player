@@ -19,6 +19,7 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 import delta.common.ui.swing.GuiFactory;
+import delta.common.ui.swing.icons.IconsManager;
 import delta.common.ui.swing.panels.AbstractPanelController;
 import delta.soundplayer.externals.codecs.AudioFileIdentifier;
 import delta.soundplayer.externals.codecs.Identifiers;
@@ -194,21 +195,22 @@ public class ControlPanelController extends AbstractPanelController
       _chooser=new JFileChooser();
     }
 
-    _stopButton.setIcon(new ImageIcon(getClass().getResource("stop.png")));
+    ;
+    _stopButton.setIcon(IconsManager.getIcon("/resources/gui/icons/stop.png"));
     _stopButton.setFocusable(false);
     _stopButton.setHorizontalTextPosition(SwingConstants.CENTER);
     _stopButton.setMargin(new java.awt.Insets(2,3,2,3));
     _stopButton.setVerticalTextPosition(SwingConstants.BOTTOM);
     jToolBar1.add(_stopButton);
 
-    _playButton.setIcon(new ImageIcon(getClass().getResource("play.png")));
+    _playButton.setIcon(IconsManager.getIcon("/resources/gui/icons/play.png"));
     _playButton.setFocusable(false);
     _playButton.setHorizontalTextPosition(SwingConstants.CENTER);
     _playButton.setMargin(new java.awt.Insets(2,3,2,3));
     _playButton.setVerticalTextPosition(SwingConstants.BOTTOM);
     jToolBar1.add(_playButton);
 
-    _pauseButton.setIcon(new ImageIcon(getClass().getResource("pause.png")));
+    _pauseButton.setIcon(IconsManager.getIcon("/resources/gui/icons/pause.png"));
     _pauseButton.setFocusable(false);
     _pauseButton.setHorizontalTextPosition(SwingConstants.CENTER);
     _pauseButton.setMargin(new java.awt.Insets(2,3,2,3));
