@@ -31,6 +31,7 @@ public class OggVorbisFileIdentifier extends AudioFileIdentifier
       track.setChannels(info.channels);
       long totalSamples=vorbisFile.pcm_total(-1);
       track.setTotalSamples(totalSamples);
+      vorbisFile.close();
     }
     catch (Exception e)
     {

@@ -95,6 +95,7 @@ public abstract class Actor
         }
       }
     },"Actor Thread");
+    messageThread.setDaemon(true);
     messageThread.start();
   }
 

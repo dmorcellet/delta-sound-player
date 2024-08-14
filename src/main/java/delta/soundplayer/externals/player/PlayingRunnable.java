@@ -13,9 +13,9 @@ import delta.soundplayer.externals.utils.AudioMath;
  * A thread to play audio.
  * @author DAM
  */
-public class PlayingThread extends Actor implements Runnable
+public class PlayingRunnable extends Actor implements Runnable
 {
-  private static final Logger logger=LoggerFactory.getLogger(PlayingThread.class);
+  private static final Logger logger=LoggerFactory.getLogger(PlayingRunnable.class);
 
   private static final int BUFFER_SIZE=AudioOutput.BUFFER_SIZE;
 
@@ -33,7 +33,7 @@ public class PlayingThread extends Actor implements Runnable
    * @param player Associated player.
    * @param buffer Associated buffer.
    */
-  public PlayingThread(AudioPlayer player, Buffer buffer)
+  public PlayingRunnable(AudioPlayer player, Buffer buffer)
   {
     _player=player;
     _buffer=buffer;

@@ -18,8 +18,10 @@ public class AudioPlayer
 
   private static final int BUFFER_SIZE=(int)Math.pow(2,18);
 
-  private PlayingThread _playingThread;
-  private BufferingThread _bufferingThread;
+  private PlayingRunnable _playingRunnable;
+  private Thread _playingThread;
+  private BufferingRunnable _bufferingRunnable;
+  private Thread _bufferingThread;
   private ArrayList<PlayerListener> _listeners;
 
   /**
@@ -29,12 +31,15 @@ public class AudioPlayer
   {
     _listeners=new ArrayList<PlayerListener>();
     Buffer buffer=new Buffer(BUFFER_SIZE);
-    _playingThread=new PlayingThread(this,buffer);
-    Thread t1=new Thread(_playingThread,"Playing Thread");
-    t1.setPriority(Thread.MAX_PRIORITY);
-    t1.start();
-    _bufferingThread=new BufferingThread(buffer,_playingThread);
-    new Thread(_bufferingThread,"Buffer Thread").start();
+    _playingRunnable=new PlayingRunnable(this,buffer);
+    _playingThread=new Thread(_playingRunnable,"Playing Thread");
+    _playingThread.setPriority(Thread.MAX_PRIORITY);
+    _playingThread.setDaemon(true);
+    _playingThread.start();
+    _bufferingRunnable=new BufferingRunnable(buffer,_playingRunnable);
+    _bufferingThread=new Thread(_bufferingRunnable,"Buffer Thread");
+    _bufferingThread.setDaemon(true);
+    _bufferingThread.start();
   }
 
   /**
@@ -43,7 +48,7 @@ public class AudioPlayer
    */
   public void open(Track track)
   {
-    _bufferingThread.send(Message.OPEN,track);
+    _bufferingRunnable.send(Message.OPEN,track);
   }
 
   /**
@@ -56,7 +61,7 @@ public class AudioPlayer
       Track track=getTrack();
       if (track!=null)
       {
-        _bufferingThread.send(Message.OPEN,track);
+        _bufferingRunnable.send(Message.OPEN,track);
       }
     }
   }
@@ -66,7 +71,7 @@ public class AudioPlayer
    */
   public void pause()
   {
-    _playingThread.send(Message.PAUSE);
+    _playingRunnable.send(Message.PAUSE);
   }
 
   /**
@@ -75,7 +80,7 @@ public class AudioPlayer
    */
   public void seek(long sample)
   {
-    _bufferingThread.send(Message.SEEK,Long.valueOf(sample));
+    _bufferingRunnable.send(Message.SEEK,Long.valueOf(sample));
   }
 
   /**
@@ -83,7 +88,7 @@ public class AudioPlayer
    */
   public void stop()
   {
-    _bufferingThread.send(Message.STOP);
+    _bufferingRunnable.send(Message.STOP);
   }
 
   /**
@@ -92,7 +97,7 @@ public class AudioPlayer
    */
   public AudioOutput getAudioOutput()
   {
-    return _playingThread.getOutput();
+    return _playingRunnable.getOutput();
   }
 
   /**
@@ -119,7 +124,7 @@ public class AudioPlayer
    */
   public long getCurrentSample()
   {
-    return _playingThread.getCurrentSample();
+    return _playingRunnable.getCurrentSample();
   }
 
   /**
@@ -128,7 +133,7 @@ public class AudioPlayer
    */
   public Track getTrack()
   {
-    return _playingThread.getCurrentTrack();
+    return _playingRunnable.getCurrentTrack();
   }
 
   /**
@@ -137,7 +142,7 @@ public class AudioPlayer
    */
   public boolean isPlaying()
   {
-    return _playingThread.isActive()&&getTrack()!=null;
+    return _playingRunnable.isActive()&&getTrack()!=null;
   }
 
   /**
@@ -155,7 +160,7 @@ public class AudioPlayer
    */
   public boolean isStopped()
   {
-    return !_bufferingThread.isActive();
+    return !_bufferingRunnable.isActive();
   }
 
   /**
@@ -170,5 +175,15 @@ public class AudioPlayer
     {
       listener.onEvent(e);
     }
+  }
+
+  /**
+   * Release all managed resources.
+   */
+  public void dispose()
+  {
+    stop();
+    _playingThread=null;
+    _bufferingThread=null;
   }
 }

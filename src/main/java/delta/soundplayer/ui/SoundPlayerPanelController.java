@@ -80,7 +80,7 @@ public class SoundPlayerPanelController extends AbstractPanelController implemen
     super.dispose();
     if (_player!=null)
     {
-      _player.stop();
+      _player.dispose();
       _player=null;
     }
   }

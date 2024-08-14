@@ -11,9 +11,9 @@ import delta.soundplayer.externals.data.Track;
  * Buffering thread.
  * @author DAM
  */
-public class BufferingThread extends Actor implements Runnable
+public class BufferingRunnable extends Actor implements Runnable
 {
-  private static final Logger logger=LoggerFactory.getLogger(BufferingThread.class);
+  private static final Logger logger=LoggerFactory.getLogger(BufferingRunnable.class);
 
   private final Object lock=new Object();
   private Track currentTrack;
@@ -21,17 +21,17 @@ public class BufferingThread extends Actor implements Runnable
   private boolean active;
 
   private Buffer _buffer;
-  private PlayingThread _playingThread;
+  private PlayingRunnable _playingRunnable;
 
   /**
    * Buffering thread.
    * @param buffer Managed buffer.
-   * @param playingThread Playing thread.
+   * @param playingRunnable Playing runnable.
    */
-  public BufferingThread(Buffer buffer, PlayingThread playingThread)
+  public BufferingRunnable(Buffer buffer, PlayingRunnable playingRunnable)
   {
     _buffer=buffer;
-    _playingThread=playingThread;
+    _playingRunnable=playingRunnable;
   }
 
   @Override
@@ -171,8 +171,8 @@ public class BufferingThread extends Actor implements Runnable
 
       start();
       logger.debug("Finished opening track");
-      _playingThread.send(Message.FLUSH);
-      _playingThread.send(Message.PLAY);
+      _playingRunnable.send(Message.FLUSH);
+      _playingRunnable.send(Message.PLAY);
     }
   }
 
