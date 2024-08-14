@@ -1,5 +1,6 @@
 package delta.soundplayer.externals.ui;
 
+import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -9,6 +10,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import delta.common.ui.swing.GuiFactory;
 import delta.soundplayer.externals.player.AudioOutput;
 
 /**
@@ -44,9 +46,13 @@ public class VolumeController
 
   private void init()
   {
+    _volumeSlider.setOpaque(false);
     _volumeSlider.setPaintTicks(false);
     _volumeSlider.setValue((int)(_output.getVolume()*100));
     _volumeSlider.setFocusable(false);
+    Dimension preferredSize=_volumeSlider.getPreferredSize();
+    preferredSize=new Dimension(119,preferredSize.height);
+    _volumeSlider.setPreferredSize(preferredSize);
 
     _volumeSlider.addChangeListener(new ChangeListener()
     {

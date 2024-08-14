@@ -1,18 +1,16 @@
 package delta.soundplayer.externals.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import delta.common.ui.swing.GuiFactory;
+import delta.common.ui.swing.panels.AbstractPanelController;
 import delta.soundplayer.externals.data.Track;
 import delta.soundplayer.externals.player.AudioPlayer;
 import delta.soundplayer.externals.player.PlayerEvent;
@@ -22,7 +20,7 @@ import delta.soundplayer.externals.player.PlayerListener;
  * Status bar.
  * @author DAM
  */
-public class StatusBar extends JPanel
+public class StatusBarController extends AbstractPanelController
 {
   // Audio player
   private AudioPlayer _player;
@@ -33,23 +31,20 @@ public class StatusBar extends JPanel
    * Constructor.
    * @param player the managed player.
    */
-  public StatusBar(AudioPlayer player)
+  public StatusBarController(AudioPlayer player)
   {
     _player=player;
     _info=new JLabel("Stopped");
+    setPanel(buildPanel());
+  }
 
-    setLayout(new BorderLayout());
-    setPreferredSize(new Dimension(10,23));
-    setBackground(new Color(238,238,238));
-    setBorder(BorderFactory.createMatteBorder(2,0,0,0,Color.lightGray));
-
-    Box box=new Box(BoxLayout.X_AXIS);
-    box.add(_info);
-    box.add(Box.createGlue());
-    box.add(Box.createHorizontalStrut(10));
-    add(box);
-
+  private JPanel buildPanel()
+  {
+    JPanel ret=GuiFactory.buildPanel(new BorderLayout());
+    ret.setPreferredSize(new Dimension(10,23));
+    ret.add(_info,BorderLayout.CENTER);
     buildListeners();
+    return ret;
   }
 
   private void buildListeners()

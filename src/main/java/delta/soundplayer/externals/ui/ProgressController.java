@@ -10,6 +10,7 @@ import javax.swing.JToolTip;
 import javax.swing.Popup;
 import javax.swing.PopupFactory;
 
+import delta.common.ui.swing.GuiFactory;
 import delta.soundplayer.externals.data.Track;
 import delta.soundplayer.externals.player.AudioPlayer;
 import delta.soundplayer.externals.utils.Util;
@@ -56,6 +57,7 @@ public class ProgressController
 
   private void init()
   {
+    _progressSlider.setOpaque(false);
     _progressSlider.setPaintTicks(false);
     _progressSlider.setValue(0);
     _progressSlider.setFocusable(false);

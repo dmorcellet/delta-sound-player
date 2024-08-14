@@ -19,10 +19,10 @@ public class MainWindow extends JFrame
    */
   public MainWindow(AudioPlayer player)
   {
-    ControlPanel controlPanel=new ControlPanel(player);
-    StatusBar statusBar=new StatusBar(player);
-    add(controlPanel,BorderLayout.NORTH);
-    add(statusBar,BorderLayout.SOUTH);
+    ControlPanelController controlPanel=new ControlPanelController(player,true);
+    StatusBarController statusBar=new StatusBarController(player);
+    add(controlPanel.getPanel(),BorderLayout.NORTH);
+    add(statusBar.getPanel(),BorderLayout.SOUTH);
 
     setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     Rectangle r=new Rectangle(50,0,600,230);

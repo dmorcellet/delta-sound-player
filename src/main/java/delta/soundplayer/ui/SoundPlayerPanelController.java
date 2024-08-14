@@ -15,8 +15,8 @@ import delta.soundplayer.externals.codecs.AudioFileIdentifier;
 import delta.soundplayer.externals.codecs.Identifiers;
 import delta.soundplayer.externals.data.Track;
 import delta.soundplayer.externals.player.AudioPlayer;
-import delta.soundplayer.externals.ui.ControlPanel;
-import delta.soundplayer.externals.ui.StatusBar;
+import delta.soundplayer.externals.ui.ControlPanelController;
+import delta.soundplayer.externals.ui.StatusBarController;
 
 /**
  * Controller for a sound player panel.
@@ -39,11 +39,11 @@ public class SoundPlayerPanelController extends AbstractPanelController implemen
   {
     JPanel ret=GuiFactory.buildPanel(new GridBagLayout());
     GridBagConstraints c=new GridBagConstraints(0,0,1,1,1.0,0.0,GridBagConstraints.WEST,GridBagConstraints.HORIZONTAL,new Insets(0,0,0,0),0,0);
-    ControlPanel controlPanel=new ControlPanel(_player);
-    ret.add(controlPanel,c);
-    StatusBar statusBar=new StatusBar(_player);
+    ControlPanelController controlPanel=new ControlPanelController(_player,false);
+    ret.add(controlPanel.getPanel(),c);
+    StatusBarController statusBar=new StatusBarController(_player);
     c=new GridBagConstraints(0,1,1,1,1.0,0.0,GridBagConstraints.WEST,GridBagConstraints.HORIZONTAL,new Insets(0,0,0,0),0,0);
-    ret.add(statusBar,c);
+    ret.add(statusBar.getPanel(),c);
     return ret;
   }
 
