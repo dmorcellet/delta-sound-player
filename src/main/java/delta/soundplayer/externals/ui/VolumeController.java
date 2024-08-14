@@ -10,7 +10,6 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import delta.common.ui.swing.GuiFactory;
 import delta.soundplayer.externals.player.AudioOutput;
 
 /**
