@@ -69,11 +69,11 @@ public class PlayingRunnable extends Actor implements Runnable
     _player.fireEvent(PlayerEventCode.STOPPED);
   }
 
-  private void setState(boolean newState)
+  private void setState(boolean active)
   {
-    if (_active!=newState)
+    if (_active!=active)
     {
-      _active=newState;
+      _active=active;
       synchronized (_lock)
       {
         _lock.notifyAll();
